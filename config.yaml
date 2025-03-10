@@ -1,0 +1,7 @@
+path: C:/Users/mendi/Desktop/Acne Detectin Using YOLO v8/dataset # Adjust to your dataset path
+train: images/train  # Path to training images
+val: images/valid    # Path to validation images
+test: images/test    # Optional, if you have a test set
+
+nc: 1                # Number of classes (change if needed)
+names: ["acne"]      # Class name(s)
