@@ -16,18 +16,23 @@ TREATMENTS = {
         "Apply a non-comedogenic moisturizer",
         "Avoid touching your face frequently",
         "Use sunscreen with SPF 30+",
+        "Salicylic Acid Cleanser: A gentle cleanser that helps unclog pores and reduce acne breakouts. Use twice daily, morning and night. Apply to wet skin, massage gently, and rinse thoroughly.",
     ],
     "Moderate": [
         "Use a benzoyl peroxide or salicylic acid cleanser",
         "Apply topical retinoids",
         "Consider a mild chemical exfoliant (AHA/BHA)",
         "Hydrate with an oil-free moisturizer",
+        "Benzoyl Peroxide Gel: A topical treatment that kills acne-causing bacteria and reduces inflammation. Apply a thin layer to affected areas once daily. Increase usage gradually if needed.",
+        "Niacinamide Serum: A soothing serum that reduces redness, controls oil production, and improves skin texture. Apply a few drops to clean skin before moisturizing, twice daily.",
     ],
     "Severe": [
         "Consult a dermatologist for prescription treatments",
         "Consider oral antibiotics or isotretinoin",
         "Use medical-grade acne treatments",
         "Follow a strict skincare routine with dermatologist-approved products",
+        "Retinol Cream: A vitamin A derivative that promotes skin renewal and prevents clogged pores. Use at night, apply a small amount to dry skin after cleansing. Use sunscreen during the day.",
+        "Clay Mask: A detoxifying mask that absorbs excess oil and unclogs pores. Apply a thin layer to clean skin, leave for 10-15 minutes, and rinse off. Use 1-2 times per week.",
     ],
 }
 
