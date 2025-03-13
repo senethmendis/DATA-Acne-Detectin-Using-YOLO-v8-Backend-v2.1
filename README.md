@@ -54,7 +54,7 @@ pip install -r requirements.txt
 ## 🎯 Usage
 ### 1️⃣ Run the API Server
 ```bash
-uvicorn main:app --host 0.0.0.0 --port 8000
+uvicorn app:app --host 0.0.0.0 --port 8000
 ```
 
 ### 2️⃣ Open API Documentation (Swagger UI)
