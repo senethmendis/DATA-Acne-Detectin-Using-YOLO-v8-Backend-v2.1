@@ -8,8 +8,10 @@ import numpy as np
 import os
 import uuid
 import random
+import tensorflow as tf
+from tensorflow.keras.models import load_model
 
-# possible treatments for each severity level
+# Define possible treatments for each severity level
 TREATMENTS = {
     "Mild": [
         "Use a gentle cleanser with salicylic acid",
@@ -31,30 +33,30 @@ TREATMENTS = {
     ],
 }
 
-# Initialize 
+# Initialize FastAPI
 app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  #  ["http://localhost:3000"] 
+    allow_origins=["*"],  # Use ["http://localhost:3000"] to restrict it to your frontend
     allow_credentials=True,
-    allow_methods=["*"],  #  methods (POST, GET, etc.)
-    allow_headers=["*"],  #  headers
+    allow_methods=["*"],  # Allow all HTTP methods (POST, GET, etc.)
+    allow_headers=["*"],  # Allow all headers
 )
 
-# serve processed images for easy access
+# Serve processed images for easy access
 app.mount("/processed", StaticFiles(directory="results"), name="processed")
 
-# load trained YOLO model
+# Load trained YOLO model
 model = YOLO("best.pt")
 
-# create folders
+# Create folders
 UPLOAD_FOLDER = "uploads"
 RESULTS_FOLDER = "results"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 os.makedirs(RESULTS_FOLDER, exist_ok=True)
 
-# severity thresholds
+# Severity thresholds
 MILD_THRESHOLD = 5
 MODERATE_THRESHOLD = 15
 SEVERE_AREA = 5000
@@ -75,7 +77,7 @@ def analyze_acne(image_path, user_id):
             cv2.rectangle(image, (x1, y1), (x2, y2), (0, 255, 0), 2)
             cv2.putText(image, "Acne", (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
 
-    # determine severity
+    # Determine severity
     if num_acne < MILD_THRESHOLD:
         severity = "Mild"
     elif num_acne < MODERATE_THRESHOLD:
@@ -85,12 +87,29 @@ def analyze_acne(image_path, user_id):
     else:
         severity = "Moderate"
 
-    # save processed image with a unique filename
+    # Save processed image with a unique filename
     output_filename = f"{user_id}_{uuid.uuid4().hex}.jpg"
     output_path = os.path.join(RESULTS_FOLDER, output_filename)
     cv2.imwrite(output_path, image)
 
     return num_acne, total_area, severity, output_filename
+
+# Load pre-trained model (Ensure the model is stored in the same directory or provide a path)
+skin_model = load_model("skin_type_model.h5")
+
+def predict_skin_type(image_path):
+    """Predicts skin type using the pre-trained model."""
+    img = cv2.imread(image_path)
+    img = cv2.resize(img, (224, 224))  # Resize to model's input size
+    img = img / 255.0  # Normalize
+    img = np.expand_dims(img, axis=0)  # Add batch dimension
+
+    # Get model predictions
+    predictions = skin_model.predict(img)
+    skin_types = ["Oily", "Dry", "Normal", "Combination", "Sensitive"]
+    predicted_type = skin_types[np.argmax(predictions)]
+
+    return predicted_type
 
 @app.post("/analyze_acne/")
 async def analyze_acne_api(
@@ -101,17 +120,17 @@ async def analyze_acne_api(
 ):
     """ API endpoint to receive user data & image, and return acne analysis """
 
-    # save uploaded image / filename
+    # Save uploaded image with a unique filename
     unique_filename = f"{uuid.uuid4().hex}_{file.filename}"
     image_path = os.path.join(UPLOAD_FOLDER, unique_filename)
     
     with open(image_path, "wb") as buffer:
         buffer.write(file.file.read())
 
-    # run acne analysis
+    # Run acne analysis
     num_acne, total_area, severity, output_image_filename = analyze_acne(image_path, user_id)
 
-    #  full URL for processed image
+    # Construct full URL for processed image
     processed_image_url = f"http://127.0.0.1:8000/processed/{output_image_filename}"
 
     # Select 2-3 random treatments based on severity
@@ -120,6 +139,7 @@ async def analyze_acne_api(
     # Clean up temp uploaded image
     os.remove(image_path)
 
+    skin_type = predict_skin_type(image_path)
     return JSONResponse(content={
         "name": name,
         "age": age,
@@ -128,5 +148,6 @@ async def analyze_acne_api(
         "total_acne_area": total_area,
         "severity": severity,
         "processed_image": processed_image_url,
-        "treatments": recommended_treatments
+        "treatments": recommended_treatments,
+        "skin_type": skin_type  # Include skin type in response
     })
