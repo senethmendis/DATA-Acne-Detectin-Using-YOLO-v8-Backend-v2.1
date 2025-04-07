@@ -39,9 +39,10 @@ TREATMENTS = {
 # Initialize FastAPI
 app = FastAPI()
 
+# ✅ CORS fix: only allow your frontend
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Allow frontend requests
+    allow_origins=["http://localhost:3000"],  # frontend dev origin
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -51,7 +52,7 @@ app.add_middleware(
 app.mount("/processed", StaticFiles(directory="results"), name="processed")
 
 # Load trained YOLO model
-model = YOLO("best.pt")  # Ensure best.pt detects both Acne (Class 0) & Pimple (Class 1)
+model = YOLO("best.pt")  # Make sure 'best.pt' exists
 
 # Create necessary folders
 UPLOAD_FOLDER = "uploads"
@@ -65,7 +66,6 @@ MODERATE_THRESHOLD = 15
 SEVERE_AREA = 5000
 
 def analyze_acne(image_path, user_id):
-    """ Runs YOLO on an image & detects acne & pimples in different colors """
     results = model(image_path)
     image = cv2.imread(image_path)
     num_acne = 0
@@ -74,18 +74,18 @@ def analyze_acne(image_path, user_id):
 
     for result in results:
         for box in result.boxes:
-            class_id = int(box.cls[0])  # Get class ID (Acne/Pimple)
+            class_id = int(box.cls[0])
             x1, y1, x2, y2 = map(int, box.xyxy[0])
             area = (x2 - x1) * (y2 - y1)
             total_area += area
 
-            if class_id == 0:  # Acne
+            if class_id == 0:
                 num_acne += 1
-                color = (0, 255, 0)  # Green
+                color = (0, 255, 0)
                 label = "Acne"
-            elif class_id == 1:  # Pimple
+            elif class_id == 1:
                 num_pimples += 1
-                color = (0, 0, 255)  # Red
+                color = (0, 0, 255)
                 label = "Pimple"
             else:
                 continue
@@ -93,7 +93,6 @@ def analyze_acne(image_path, user_id):
             cv2.rectangle(image, (x1, y1), (x2, y2), color, 2)
             cv2.putText(image, label, (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
 
-    # Determine severity based on acne spots
     if num_acne < MILD_THRESHOLD:
         severity = "Mild"
     elif num_acne < MODERATE_THRESHOLD:
@@ -103,7 +102,6 @@ def analyze_acne(image_path, user_id):
     else:
         severity = "Moderate"
 
-    # Save processed image
     output_filename = f"{user_id}_{uuid.uuid4().hex}.jpg"
     output_path = os.path.join(RESULTS_FOLDER, output_filename)
     cv2.imwrite(output_path, image)
@@ -117,25 +115,16 @@ async def analyze_acne_api(
     user_id: str = Form(...),
     file: UploadFile = File(...),
 ):
-    """ API endpoint to receive user data & image, and return acne analysis """
-
-    # Save uploaded image / filename
     unique_filename = f"{uuid.uuid4().hex}_{file.filename}"
     image_path = os.path.join(UPLOAD_FOLDER, unique_filename)
 
     with open(image_path, "wb") as buffer:
         buffer.write(file.file.read())
 
-    # Run acne analysis
     num_acne, num_pimples, total_area, severity, output_image_filename = analyze_acne(image_path, user_id)
-
-    # Full URL for processed image
     processed_image_url = f"http://127.0.0.1:8000/processed/{output_image_filename}"
-
-    # Select 2-3 random treatments based on severity
     recommended_treatments = random.sample(TREATMENTS[severity], min(3, len(TREATMENTS[severity])))
 
-    # Clean up temp uploaded image
     os.remove(image_path)
 
     return JSONResponse(content={
