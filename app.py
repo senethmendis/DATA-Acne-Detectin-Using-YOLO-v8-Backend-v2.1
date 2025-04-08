@@ -17,6 +17,10 @@ TREATMENTS = {
         "Avoid touching your face frequently",
         "Use sunscreen with SPF 30+",
         "Salicylic Acid Cleanser: A gentle cleanser that helps unclog pores and reduce acne breakouts. Use twice daily, morning and night. Apply to wet skin, massage gently, and rinse thoroughly.",
+        "Apply ice to inflamed pimples to reduce swelling",
+        "Use tea tree oil as a natural spot treatment (diluted)",
+        "Keep pillowcases and phone screens clean",
+        "Avoid heavy makeup or use non-comedogenic products",
     ],
     "Moderate": [
         "Use a benzoyl peroxide or salicylic acid cleanser",
@@ -25,6 +29,9 @@ TREATMENTS = {
         "Hydrate with an oil-free moisturizer",
         "Benzoyl Peroxide Gel: A topical treatment that kills acne-causing bacteria and reduces inflammation. Apply a thin layer to affected areas once daily. Increase usage gradually if needed.",
         "Niacinamide Serum: A soothing serum that reduces redness, controls oil production, and improves skin texture. Apply a few drops to clean skin before moisturizing, twice daily.",
+        "Azelaic Acid Cream: Helps reduce swelling and kills bacteria. Use twice daily after cleansing and before moisturizing.",
+        "Use hydrocolloid patches on active pimples to absorb oil and protect from picking",
+        "Introduce gentle exfoliation 1-2 times a week to prevent buildup of dead skin",
     ],
     "Severe": [
         "Consult a dermatologist for prescription treatments",
@@ -33,8 +40,13 @@ TREATMENTS = {
         "Follow a strict skincare routine with dermatologist-approved products",
         "Retinol Cream: A vitamin A derivative that promotes skin renewal and prevents clogged pores. Use at night, apply a small amount to dry skin after cleansing. Use sunscreen during the day.",
         "Clay Mask: A detoxifying mask that absorbs excess oil and unclogs pores. Apply a thin layer to clean skin, leave for 10-15 minutes, and rinse off. Use 1-2 times per week.",
+        "Oral Isotretinoin (Accutane): A potent prescription drug for severe cystic acne, must be taken under close medical supervision due to potential side effects.",
+        "Spironolactone: A hormonal treatment option for women with acne caused by hormonal imbalances.",
+        "Use a gentle foaming cleanser to avoid over-drying skin",
+        "Avoid picking or popping deep cysts as it can cause scarring",
     ],
-}
+};
+
 
 # Initialize FastAPI
 app = FastAPI()
