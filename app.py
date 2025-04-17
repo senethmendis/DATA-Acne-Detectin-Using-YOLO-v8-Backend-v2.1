@@ -9,7 +9,7 @@ import os
 import uuid
 import random
 
-# Possible treatments for each severity level
+
 TREATMENTS = {
     "Mild": [
         "Use a gentle cleanser with salicylic acid",
@@ -51,22 +51,22 @@ TREATMENTS = {
 # Initialize FastAPI
 app = FastAPI()
 
-# ✅ CORS fix: only allow your frontend
+#  CORS fix
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],  # frontend dev origin
+    allow_origins=["http://localhost:3000"],  # origin
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Serve processed images for easy access
+# processed images from the server
 app.mount("/processed", StaticFiles(directory="results"), name="processed")
 
 # Load trained YOLO model
-model = YOLO("best.pt")  # Make sure 'best.pt' exists
+model = YOLO("best.pt")  
 
-# Create necessary folders
+# Create folders
 UPLOAD_FOLDER = "uploads"
 RESULTS_FOLDER = "results"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
